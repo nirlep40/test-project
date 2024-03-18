@@ -1,0 +1,286 @@
+{% comment %}
+  Renders a standard dropdown style menu for the header.
+
+  Usage:
+  {% render 'header-dropdown-menu' %}
+{% endcomment %}
+
+<nav class="header__inline-menu">
+  <ul class="list-menu list-menu--inline" role="list">    
+    {%- for link in section.settings.menu.links -%}
+      {% assign matched_menu = false %}
+      {% if section.blocks.size > 0 %}
+        {%- for block in section.blocks -%}          
+          {% if block.type == 'mega_menu_trigger' %}
+            {%- liquid             	
+              assign first_img = block.settings.first_img
+              assign second_img = block.settings.second_img
+              assign third_img = block.settings.third_img
+              assign fourth_img = block.settings.fourth_img
+              assign first_img_link = block.settings.first_img_link
+              assign second_img_link = block.settings.second_img_link
+              assign third_img_link = block.settings.third_img_link_link
+              assign fourth_img_link = block.settings.fourth_img_link
+              assign shop_all_text = block.settings.shop_all_text
+              assign shop_all_link = block.settings.shop_all_link
+              assign handleize_menu = block.settings.menu_trigger | handleize
+              assign handleize_menu_title = link.title | handleize
+              if handleize_menu == handleize_menu_title
+                assign matched_menu = true
+              endif
+            -%}          
+          {% endif %}
+        {%- endfor -%}
+      {% endif %}
+      
+      <li{% if link.links != blank and link.levels > 1 %} class="has-sub-menu level-{{link.levels}}{% if matched_menu == true %} mega-menu{% endif %}"{% endif %}>
+        {%- if link.links != blank -%}
+          <header-menu>
+            <details id="Details-HeaderMenu-{{ forloop.index }}">
+              <summary
+                id="HeaderMenu-{{ link.handle }}"
+                class="header__menu-item list-menu__item link focus-inset top-level"
+              >
+                <span
+                  {%- if link.child_active %}
+                    class="header__active-menu-item"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </span>
+                {% render 'icon-caret' %}
+              </summary>
+              {% if matched_menu == true %}
+                <div id="HeaderMenu-MenuList-{{ forloop.index }}"
+                    class="custom-mega-menu header__submenu list-menu list-menu--disclosure gradient caption-large motion-reduce global-settings-popup">
+                  <ul  
+                    class="mega-menu-listing"
+                    role="list"
+                    tabindex="-1"
+                  >
+                    {%- for childlink in link.links -%}
+                      <li>
+                        {%- if childlink.links == blank -%}
+                          <a
+                            id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                            href="{{ childlink.url }}"
+                            class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if childlink.current %} list-menu__item--active{% endif %}"
+                            {% if childlink.current %}
+                              aria-current="page"
+                            {% endif %}
+                          >
+                            {{ childlink.title | escape }}
+                          </a>
+                        {%- else -%}
+                          <details id="Details-HeaderSubMenu-{{ link.handle }}-{{ childlink.handle }}" {% if matched_menu == true %}open{% endif %}>
+                            <summary
+                              id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                              class="header__menu-item link link--text list-menu__item focus-inset caption-large"
+                              {% if matched_menu == true %}aria-expanded="true"{% endif %}
+                            >
+                              {% if matched_menu == true and childlink.url contains 'collection' %}
+                                {% assign collection = childlink.object %}
+                                <img
+                                  src="{{ collection.image | image_url: width: '150' }}" 
+                                  alt="{{  collection.title | escape }}" 
+                                  loading="lazy"                        
+                                  width="150"
+                                  height="150"
+                                 />
+                              {% endif %}
+                              <span>{{ childlink.title | escape }}</span>                              
+                            </summary>
+                            <ul
+                              id="HeaderMenu-SubMenuList-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                              class="header__submenu list-menu motion-reduce"
+                            >
+                              {%- for grandchildlink in childlink.links -%}
+                                <li>
+                                  <a
+                                    id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                    href="{{ grandchildlink.url }}"
+                                    class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if grandchildlink.current %} list-menu__item--active{% endif %}"
+                                    {% if grandchildlink.current %}
+                                      aria-current="page"
+                                    {% endif %}
+                                  >
+                                    {{ grandchildlink.title | escape }}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </details>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                  {% if section.blocks.size > 0 %}
+                    <div class="collage-images">
+                      {%- for block in section.blocks -%}                                              
+                        {% if first_img != blank or second_img != blank or third_img != blank or fourth_img != blank or shop_all_link != blank %}
+                          <div class="three-images">
+                            <div class="images">
+                              {% if first_img != blank %}
+                                <div class="image">
+                                  {% if first_img_link != blank %}
+                                    <a href="{{ first_img_link }}">
+                                  {% endif %}
+                                  <img
+                                    src="{{ first_img | image_url: width: '250' }}" 
+                                    alt="{{ first_img.alt | escape }}" 
+                                    loading="lazy"                        
+                                    width="250"
+                                    height="90"
+                                  />
+                                  {% if first_img_link != blank %}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              {% endif %}
+                              {% if second_img != blank %}
+                                <div class="image">
+                                  {% if second_img_link != blank %}
+                                    <a href="{{ second_img_link }}">
+                                  {% endif %}
+                                    <img
+                                      src="{{ second_img | image_url: width: '250' }}" 
+                                      alt="{{ second_img.alt | escape }}" 
+                                      loading="lazy"                        
+                                      width="250"
+                                      height="90"
+                                    />
+                                  {% if second_img_link != blank %}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              {% endif %}
+                              {% if third_img != blank %}
+                                <div class="image">
+                                  {% if third_img_link != blank %}
+                                    <a href="{{ third_img_link }}">
+                                  {% endif %}
+                                  <img
+                                    src="{{ third_img | image_url: width: '250' }}" 
+                                    alt="{{ third_img.alt | escape }}" 
+                                    loading="lazy"                        
+                                    width="250"
+                                    height="90"
+                                  />
+                                  {% if third_img_link != blank %}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              {% endif %}
+                            </div>                            
+                            {% if shop_all_link != blank %}
+                              <div class="new-link">
+                               <a href="{{ shop_all_link }}">{{ shop_all_text }} {% render 'new-link-icon' %}</a> 
+                              </div>
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                        {% if fourth_img != blank %}
+                          <div class="one-image">                          
+                              <div class="image">
+                                {% if fourth_img_link != blank %}
+                                  <a href="{{ fourth_img_link }}">
+                                {% endif %}
+                                <img
+                                  src="{{ fourth_img | image_url: width: '400' }}" 
+                                  alt="{{ fourth_img.alt | escape }}" 
+                                  loading="lazy"                        
+                                  width="400"
+                                  height="400"
+                                />
+                                {% if fourth_img_link != blank %}
+                                  </a>
+                                {% endif %}
+                              </div>                            
+                          </div>
+                        {% endif %}
+                        
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <ul
+                  id="HeaderMenu-MenuList-{{ forloop.index }}"
+                  class="header__submenu list-menu list-menu--disclosure color-{{ section.settings.menu_color_scheme }} gradient caption-large motion-reduce global-settings-popup"
+                  role="list"
+                  tabindex="-1"
+                >
+                  {%- for childlink in link.links -%}
+                    <li>
+                      {%- if childlink.links == blank -%}
+                        <a
+                          id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                          href="{{ childlink.url }}"
+                          class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if childlink.current %} list-menu__item--active{% endif %}"
+                          {% if childlink.current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          {{ childlink.title | escape }}
+                        </a>
+                      {%- else -%}
+                        <details id="Details-HeaderSubMenu-{{ link.handle }}-{{ childlink.handle }}">
+                          <summary
+                            id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                            class="header__menu-item link link--text list-menu__item focus-inset caption-large"
+                            {% if matched_menu == true %}aria-expanded="true"{% endif %}
+                          >                            
+                            <span>{{ childlink.title | escape }}</span>
+                            {% render 'icon-caret' %}
+                          </summary>
+                          <ul
+                            id="HeaderMenu-SubMenuList-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                            class="header__submenu list-menu motion-reduce"
+                          >
+                            {%- for grandchildlink in childlink.links -%}
+                              <li>
+                                <a
+                                  id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                  href="{{ grandchildlink.url }}"
+                                  class="header__menu-item list-menu__item link link--text focus-inset caption-large{% if grandchildlink.current %} list-menu__item--active{% endif %}"
+                                  {% if grandchildlink.current %}
+                                    aria-current="page"
+                                  {% endif %}
+                                >
+                                  {{ grandchildlink.title | escape }}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        </details>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {% endif %}
+              
+            </details>
+          </header-menu>
+          
+        {%- else -%}
+          <a
+            id="HeaderMenu-{{ link.handle }}"
+            href="{{ link.url }}"
+            class="header__menu-item list-menu__item link link--text focus-inset"
+            {% if link.current %}
+              aria-current="page"
+            {% endif %}
+          >
+            <span
+              {%- if link.current %}
+                class="header__active-menu-item"
+              {% endif %}
+            >
+              {{- link.title | escape -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav>
